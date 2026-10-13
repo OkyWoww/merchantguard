@@ -19,7 +19,7 @@ Rule: tick a box only after attaching the evidence (diff, test output, or comman
 - [ ] T2.3 vLLM serving on AMD Developer Cloud. *Evidence: serve command, `/v1/models` response, `rocm-smi` capture*
 - [x] T2.4 LLM router (vLLM → replay → template) + circuit breaker. *Evidence: docs/evidence/day2_router.md (`pytest tests/test_router.py`)*
 - [x] T2.6 Credit budget: new AMD AI Developer Program members get $100 cloud credit (per kickoff slides). Find the instance hourly price, compute usable hours, and schedule GPU windows (dev, benchmark, recording); stop the instance when idle. *Evidence: docs/evidence/budget.md & docs/evidence/day2_router.md*
-- [ ] T2.5 First image build + push (moved earlier to surface base-image problems). Dockerfile starts FROM the AMD base image named in Discord, clones the public repo inside the Dockerfile, is built on your own machine or CI (NOT in the notebooks.amd.com/hackathon notebook; AMD staff said that likely won't work), and is pushed to Docker Hub or another public registry. *Evidence: build log, registry URL, `docker pull` output*
+- [x] T2.5 First image build + push (moved earlier to surface base-image problems). Dockerfile starts FROM the AMD base image named in Discord, clones the public repo inside the Dockerfile, is built on your own machine or CI (NOT in the notebooks.amd.com/hackathon notebook; AMD staff said that likely won't work), and is pushed to Docker Hub or another public registry. *Evidence: docs/evidence/day2_container.md (ghcr.io/okywoww/merchantguard:latest & docker.io/okywoww/merchantguard:latest)*
 
 ## Day 3 — 14–15 Oct: End-to-end + UI  (SCOPE FREEZE at end of day)
 - [ ] T3.1 Narrator + validator + template fallback. *Evidence: tests incl. injection cases*
