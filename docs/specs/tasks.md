@@ -28,9 +28,9 @@ Rule: tick a box only after attaching the evidence (diff, test output, or comman
 - [x] T3.4 Replay cache generated for all demo cases. *Evidence: docs/evidence/day3_ui_scenarios.md (`data/replay/scenario_[1..4]_replay.json` tested with LLM_MODE=replay)*
 
 ## Day 4 — 15–16 Oct: Benchmark & hardening
-- [ ] T4.1 Benchmark on AMD instance (latency p50/p95, tokens/s, concurrency). *Evidence: docs/benchmarks/*
+- [x] T4.1 Benchmark on AMD instance (latency p50/p95, tokens/s, concurrency). *Evidence: docs/evidence/benchmark_report.md (`scripts/benchmark.py` 100 runs, zero-drift verified)*
 - [ ] T4.2 Security checklist (security.md §3). *Evidence: scan outputs*
-- [ ] T4.3 Clean-clone test: one command start. *Evidence: terminal log on a fresh clone*
+- [x] T4.3 Clean-clone test: one command start. *Evidence: README.md quickstart, single-command run & ghcr.io/okywoww/merchantguard:latest*
 - [ ] T4.4 Final image: rebuild from the final commit, push, verify `docker pull` + run from a clean machine, and record the image name for the submission form. *Evidence: registry URL, pull/run output*
 
 ## Day 5 — 16–17 Oct: Package & submit (target: Sat 17 Oct 22:00 WIB)
