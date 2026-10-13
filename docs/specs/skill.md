@@ -22,7 +22,7 @@ Rules:
 
 ## 3. Skills the builder needs (checklist)
 - [ ] FastAPI + SSE
-- [ ] vLLM OpenAI-compatible serving on AMD Developer Cloud
+- [ ] AMD Token Factory gateway — OpenAI-compatible chat completions at `developer.amd.com.cn/radeon/api/v1`, model `DeepSeek-V4-Flash`; Bearer key via `OPENAI_API_KEY`; no self-hosted vLLM or GPU provisioning required
 - [ ] scikit-learn training/export, calibration check
 - [ ] Docker/docker-compose, public deployment
-- [ ] Screen/terminal recording for rocm-smi evidence and demo video
+- [ ] Screen/terminal recording for AMD Token Factory gateway evidence (live HTTP 200, latency, token count) and demo video — redact Authorization headers before recording

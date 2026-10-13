@@ -29,8 +29,10 @@ Thresholds live in `config/policy.yaml`, never hard-coded.
 ## D. Engineering rules
 1. **No "done" without evidence.** A task is complete only with the real diff, test output or command output attached (see tasks.md). A narrative walkthrough is not evidence.
 2. Test-first for the rule engine: every rule R-xxx has at least one passing and one failing fixture.
-3. No secrets in the repo, ever (see security.md). `.env.example` only.
+3. No secrets in the repo, ever (see security.md). `.env.example` only. `OPENAI_API_KEY` (the AMD Token Factory bearer key) must never appear with a real value in any committed file.
 4. Synthetic data only. No real names, emails, card numbers or addresses.
 5. Scope freeze at end of Day 3: after that, only fixes, benchmarks, README, video.
 6. One definition of "done" for the MVP: the 4 demo scenarios run end-to-end from a clean clone via one command.
-7. Mode must always be visible in the UI and recorded in the audit log: LIVE (AMD vLLM), REPLAY (cached real model outputs), TEMPLATE (deterministic narrative, no LLM). Never route to a non-AMD LLM provider.
+7. Mode must always be visible in the UI and recorded in the audit log: LIVE (AMD Token Factory), REPLAY (cached real model outputs), TEMPLATE (deterministic narrative, no LLM). Never route to a non-AMD LLM provider.
+8. **AMD infrastructure evidence (Track 3):** capture client-side latency benchmarks, tokens-per-second measurements, and a Token Factory portal usage screenshot. `rocm-smi` is not required — it is not accessible from the Token Factory gateway client side.
+9. **Evolus is out of scope.** Track 3 (Reinvent Commerce) is the only target. Do not build Evolus adapters or use Evolus-hosted models as an LLM tier.

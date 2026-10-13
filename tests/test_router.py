@@ -90,7 +90,7 @@ async def test_live_vllm_happy_path(sample_case_1001, sample_decision):
 @pytest.mark.asyncio
 async def test_forced_timeout_degrades_to_replay_cache(sample_case_1001, sample_decision):
     """Tier 1 failure (timeout) degrades to Tier 2 (Replay Cache)."""
-    router = InferenceRouter(mode="live", timeout_seconds=8.0)
+    router = InferenceRouter(mode="live", timeout_seconds=35.0)
 
     with patch.object(httpx.AsyncClient, "post", side_effect=httpx.TimeoutException("Read timeout after 8s")):
         payload = await router.generate_narrative(sample_case_1001, sample_decision)
@@ -157,6 +157,44 @@ async def test_circuit_breaker_tripping_and_skipping_tier1(sample_case_1001, sam
         assert p3.mode == "REPLAY"
         # mock_post should still be 2, NOT 3!
         assert mock_post.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_http_429_degrades_to_replay(sample_case_1001, sample_decision):
+    """HTTP 429 from gateway is treated as a failure and falls back to REPLAY."""
+    router = InferenceRouter(mode="live", timeout_seconds=35.0)
+
+    mock_resp = httpx.Response(
+        status_code=429,
+        json={"error": "rate limit exceeded"},
+        request=httpx.Request("POST", "http://mock-vllm:8000/v1/chat/completions"),
+    )
+
+    with patch.object(httpx.AsyncClient, "post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_resp
+        payload = await router.generate_narrative(sample_case_1001, sample_decision)
+
+        assert payload.mode in ("REPLAY", "TEMPLATE")
+        assert router.circuit_breaker.failure_count >= 1
+
+
+@pytest.mark.asyncio
+async def test_http_500_degrades_to_replay(sample_case_1001, sample_decision):
+    """HTTP 5xx from gateway is treated as a failure and falls back to REPLAY."""
+    router = InferenceRouter(mode="live", timeout_seconds=35.0)
+
+    mock_resp = httpx.Response(
+        status_code=503,
+        json={"error": "service unavailable"},
+        request=httpx.Request("POST", "http://mock-vllm:8000/v1/chat/completions"),
+    )
+
+    with patch.object(httpx.AsyncClient, "post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_resp
+        payload = await router.generate_narrative(sample_case_1001, sample_decision)
+
+        assert payload.mode in ("REPLAY", "TEMPLATE")
+        assert router.circuit_breaker.failure_count >= 1
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,7 @@
 # product.md — MerchantGuard (Dispute & Margin Recovery Copilot)
 
 **Event:** AMD Developer Hackathon: ACT III (lablab.ai, online 12–18 Oct 2026)
-**Track:** Reinvent Commerce
+**Track:** Reinvent Commerce (Track 3 only — Evolus Partner Track is out of scope)
 **One-liner:** Stop leaking e-commerce margin on bad dispute decisions: deterministic policy guardrails + a statistical margin model decide; an open LLM on AMD infrastructure only writes the evidence narrative.
 
 ## 1. Problem
@@ -15,11 +15,11 @@ E-commerce Ops / CS Lead at a small-to-mid merchant who approves the final respo
 - Case intake (API + sample loader) for 4 dispute types: item-not-received, return-window claim, damaged item, unauthorized-charge claim.
 - Deterministic Policy Gate (window, delivery proof, signature/geo flags, PII scrub).
 - Margin model: P(win), cost of dispute vs refund, recommended action.
-- LLM narrator: cited evidence paragraph + draft response.
+- LLM narrator: cited evidence paragraph + draft response (via AMD Token Factory gateway, model DeepSeek-V4-Flash).
 - Human approve/edit/reject UI with audit log.
 - Synthetic dataset generator and replay mode.
 
-**Out of scope** — real payment-processor integrations, real customer data, multi-tenant auth, model training/fine-tuning, mobile UI.
+**Out of scope** — real payment-processor integrations, real customer data, multi-tenant auth, model training/fine-tuning, mobile UI, Evolus partner integration.
 
 ## 4. Inputs
 | Input | Fields |
@@ -45,7 +45,7 @@ E-commerce Ops / CS Lead at a small-to-mid merchant who approves the final respo
 - Total Recovered Margin counter across the synthetic case set vs a "refund everything" baseline.
 - Decision-time per case (target: seconds, measured and logged).
 - 100% of decisions reproducible from the audit log.
-- Inference latency / tokens-per-second measured on AMD hardware (see execution_guide.md).
+- Inference latency / tokens-per-second measured via AMD Token Factory gateway (client-side benchmark).
 
 ## 8. Honesty constraints (do not violate in demo or README)
 - P(win) is trained on **synthetic** data. Label it "illustrative / synthetic-calibrated" in the UI and README. Never present it as real-world accuracy.
@@ -55,7 +55,7 @@ E-commerce Ops / CS Lead at a small-to-mid merchant who approves the final respo
 ## 9. Judging criteria mapping (from the kickoff livestream slides, relayed by Oky; verify against the lablab page)
 | Criterion | How MerchantGuard answers it | Where to show it |
 |---|---|---|
-| Application of Technology | Open model served with vLLM on AMD Developer Cloud, statistical margin model, schema/citation validator, degradation ladder | architecture slide, rocm-smi + benchmark, engine status indicator |
+| Application of Technology | Open model (DeepSeek-V4-Flash) via AMD Token Factory gateway, statistical margin model, schema/citation validator, degradation ladder | architecture slide, Token Factory portal screenshot + latency benchmark, engine status indicator |
 | Business Value | Measured recovered margin vs a "refund everything" baseline (synthetic, labeled), decision time per case | metrics strip, final video segment |
 | Originality | Decision/narration split (LLM cannot decide), economic-trap case, visible fault tolerance | scenarios 2 and 4, kill-the-endpoint moment |
 | Presentation | Four scripted scenarios in about 4 minutes | video_script.md |

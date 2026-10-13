@@ -37,14 +37,14 @@
 Loading (skeleton + SSE progress: Gate → Margin → Narrative), LLM-down (narrative shows template text, banner shows REPLAY or TEMPLATE), validation-failed (template narrative + note), empty queue, error toast.
 
 ## 5. Visual & accessibility
-Dark-on-light neutral palette; semantic colors only for status (green contest / amber partial / red accept / gray needs-human). Do not rely on color alone: icon + text label. Keyboard-operable action bar, contrast ≥ 4.5:1, responsive down to laptop width (mobile not required).
+Dark-on-light neutral palette; semantic colors only for status (green contest / amber partial / red accept / gray needs-human). Do not rely on color alone: icon + text label. Keyboard-operable action bar, contrast >= 4.5:1, responsive down to laptop width (mobile not required).
 
 ## 6. SSE event shapes
 `gate` {status, rule_id, reason} → `margin` {p_win, options[], action} → `narrative_chunk` {text} → `narrative_done` {claims[], mode} → `error` {code}
 
 ## 7. Engine status indicator (top-right, always visible)
-Shows the real runtime state, never hard-coded text. Example: `Engine: vLLM @ <detected GPU name> (LIVE) | Model: <model id> | P(win): synthetic-trained`.
-- GPU/hardware string comes from the serving endpoint or a captured `rocm-smi` readout. If it cannot be read, show "hardware: unverified" rather than a guess.
-- Mode text and color change with the active tier: LIVE (AMD vLLM) → REPLAY (cached real outputs, known demo cases) → TEMPLATE (any other case).
+Shows the real runtime state, never hard-coded text. Example: `Engine: AMD Token Factory (LIVE) | Model: DeepSeek-V4-Flash | P(win): synthetic-trained`.
+- Mode text and color change with the active tier: LIVE (AMD Token Factory) → REPLAY (cached real outputs, known demo cases) → TEMPLATE (any other case).
+- The hardware/GPU label is not shown client-side — the Token Factory is a managed gateway and GPU details are not exposed. Show "AMD Token Factory" as the provider name.
 - The P(win) label stays "synthetic-trained" until a calibration check (reliability curve or Brier score on held-out synthetic data) is saved in docs/evidence/. Only then may it read "synthetic-calibrated".
 - Pitch angle: the degradation ladder is a feature. Show it working in the video (video_script.md, 3:40).

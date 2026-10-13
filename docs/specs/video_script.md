@@ -10,13 +10,16 @@ Format: screen recording + voiceover, MP4. Keep every claim consistent with READ
 | 1:35–2:05 | Scenario 3: window bypass auto-rejected, "no LLM call" indicator | "Day 35 on a 14-day policy: rejected by rules instantly, zero tokens spent." |
 | 2:05–2:35 | Scenario 4: economic trap, ACCEPT_REFUND with formula expander | "Here the dispute fee exceeds the recoverable margin. Fighting would lose money, so the system recommends refunding." |
 | 2:35–3:05 | Scenario 2: ambiguous evidence → NEEDS_HUMAN, approve and log, audit chain verify | "When evidence conflicts, it hands off to a person and records every step in a tamper-evident log." |
-| 3:05–3:40 | Terminal: `rocm-smi` during benchmark, latency/tokens-per-second table | "Served with vLLM on AMD Developer Cloud. Here are real measurements: p50, p95 latency and tokens per second." |
-| 3:40–3:55 | Kill the LLM endpoint; banner flips to REPLAY/TEMPLATE; app keeps working | "If the model goes down, the rules, margin math and audit log keep running." |
+| 3:05–3:40 | Split screen: (left) browser Network tab or terminal showing the live `/chat/completions` request to `developer.amd.com.cn` — HTTP 200, model `self-dploy/DeepSeek-V4-Flash`; (right) latency readout and token count from the router log. Optionally: Token Factory portal usage dashboard screenshot. | "Narrative generation runs on AMD infrastructure via the AMD Token Factory gateway — model DeepSeek-V4-Flash, latency under 10 seconds end-to-end on this call, 31 tokens out. Every call is logged with mode, model, latency, and token count in the audit chain. You can see the request hit the AMD endpoint and come back live here." |
+| 3:40–3:55 | Kill the LLM endpoint (set LLM_MODE=replay or block the URL); banner flips to REPLAY then TEMPLATE; app keeps working | "If the AMD endpoint goes down, the rules, margin math and audit log keep running — the degradation ladder is a feature, not a fallback. Here it is in real time." |
 | 3:55–4:10 | Recovered-margin counter vs baseline, repo URL, demo URL | "On our synthetic set, recovered margin versus refund-everything is shown here. Numbers are illustrative. Code and live demo are linked below." |
 
 ## Recording checklist
-- [ ] Mode banner visible in every LLM shot
-- [ ] Real benchmark numbers copied from docs/benchmarks/, not retyped from memory
+- [ ] Mode banner visible in every LLM shot (LIVE green / REPLAY blue / TEMPLATE amber)
+- [ ] Tier 1 LIVE segment (3:05–3:40) shows actual HTTP 200 response from `developer.amd.com.cn` with model `self-dploy/DeepSeek-V4-Flash` and real latency/token figures — **not** a REPLAY playback
+- [ ] Token Factory portal usage screenshot captured and included (or shown on screen during 3:05–3:40)
+- [ ] Latency and token count in the video match values in `docs/evidence/` (do not retype from memory)
 - [ ] Synthetic-data disclosure shown on screen once
-- [ ] No keys or tokens visible in terminal or browser
+- [ ] No API keys, bearer tokens, or Authorization headers visible in any terminal or browser shot — redact or crop before recording
+- [ ] Degradation ladder demo (3:40–3:55) shows both REPLAY and TEMPLATE banners
 - [ ] Exported as MP4; watched fully before upload
