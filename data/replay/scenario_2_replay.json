@@ -1,0 +1,17 @@
+{
+  "case_id": "CASE-1002",
+  "summary": "High-value order ($420.00) flagged for human investigation due to missing recipient signature and carrier GPS variance.",
+  "claims": [
+    {
+      "statement": "Order ORD-94301 ($420.00) exceeds high-value threshold ($250.00) without physical signature evidence.",
+      "fact_ids": ["order_id", "order_amount"]
+    },
+    {
+      "statement": "Courier telematics reflect delivery GPS mismatch against customer address coordinates.",
+      "fact_ids": ["claimed_reason"]
+    }
+  ],
+  "draft_reply": "Internal Case Escalation Note:\n\nCase CASE-1002 has been flagged under Policy Rule R-003 and R-006. The disputed order amount is $420.00, exceeding our automated threshold. Tracking logs show the parcel was left unattended at an entry gate without a signature, and carrier GPS coordinates diverge from customer coordinates. \n\nAction: Routed to Senior Adjuster for carrier lost-in-transit claims filing. Merchant will not contest without carrier geolocation confirmation.",
+  "llm_provider": "replay_cache_rocm_fallback",
+  "verified_citations": true
+}

@@ -1,0 +1,17 @@
+{
+  "case_id": "CASE-1004",
+  "summary": "Economic margin calculation indicates negative Expected Value (-$8.14); auto-refund triggered to avoid fee.",
+  "claims": [
+    {
+      "statement": "Order ORD-55102 has gross value $16.50 and net profit margin of $3.80.",
+      "fact_ids": ["order_id", "order_amount", "unit_margin"]
+    },
+    {
+      "statement": "Payment gateway dispute fee is $15.00, rendering contest action economically destructive under Rule R-004.",
+      "fact_ids": ["dispute_fee", "reason_code"]
+    }
+  ],
+  "draft_reply": "Dear Customer,\n\nWe apologize for the inconvenience regarding your order ORD-55102. Rather than subjecting this order to lengthy payment processor arbitration, we have issued a full courtesy refund of $16.50 directly back to your original payment method.\n\nThank you for shopping with us.\nCustomer Care Team",
+  "llm_provider": "replay_cache_rocm_fallback",
+  "verified_citations": true
+}

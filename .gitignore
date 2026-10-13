@@ -1,0 +1,32 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment & Secrets
+.env
+.env.local
+*.env
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Databases & local state
+*.db
+*.sqlite3
+data/audit_log.json
+
+# Model weights & cache
+models/*
+!models/.gitkeep
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs & Evidence
+*.log
+docs/evidence/*.raw

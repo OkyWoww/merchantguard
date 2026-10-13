@@ -1,0 +1,20 @@
+{
+  "case_id": "CASE-1004",
+  "order_id": "ORD-55102",
+  "claim_date": "2026-10-09T09:10:00Z",
+  "delivery_date": "2026-10-07T14:40:00Z",
+  "order_amount": 16.50,
+  "unit_margin": 3.80,
+  "dispute_fee": 15.00,
+  "claimed_reason": "ITEM_NOT_RECEIVED",
+  "complaint_text": "Did not receive phone charging cable.",
+  "courier_events": [
+    {
+      "timestamp": "2026-10-07T14:40:00Z",
+      "status": "DELIVERED",
+      "note": "Delivered in mailbox",
+      "geo_match": true,
+      "signature_present": false
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "MerchantGuard - Dispute & Margin Recovery Copilot",
+  "description": "Deterministic Policy Gate and Statistical Margin Recovery Copilot with AMD ROCm vLLM cited narrative generation and cryptographic audit chain for e-commerce commerce dispute resolution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

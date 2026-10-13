@@ -1,0 +1,17 @@
+{
+  "case_id": "CASE-1003",
+  "summary": "Customer claim filed 32 days post-delivery exceeds the statutory 14-day return and dispute policy window.",
+  "claims": [
+    {
+      "statement": "Order ORD-71950 was delivered on 2026-09-08 and dispute was initiated on 2026-10-10.",
+      "fact_ids": ["order_id", "delivery_date", "claim_date"]
+    },
+    {
+      "statement": "Elapsed return window of 32 days exceeds published merchant return cutoff of 14 days under Policy Gate Rule R-001.",
+      "fact_ids": ["reason_code"]
+    }
+  ],
+  "draft_reply": "Dear Arbitration Representative,\n\nWe respectfully contest dispute CASE-1003 for Order ORD-71950. The customer received the merchandise on September 8, 2026, and lodged their complaint on October 10, 2026—over 32 days post-delivery.\n\nOur published merchant terms provide a 14-calendar-day notification window for discrepancies. By accepting the delivery and retaining the merchandise for over a month, the claim falls outside standard dispute eligibility under Rule R-001. We request dismissal of the claim.\n\nSincerely,\nMerchant Legal & Dispute Resolution",
+  "llm_provider": "replay_cache_rocm_fallback",
+  "verified_citations": true
+}

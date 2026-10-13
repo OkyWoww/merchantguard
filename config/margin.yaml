@@ -1,0 +1,24 @@
+# Statistical Margin Recovery Engine Configuration
+margin_engine:
+  # Base arbitration / dispute charge levied by payment rails (e.g. Stripe, Adyen)
+  default_dispute_fee: 15.0
+
+  # Expected Value hurdle: Do not contest if EV <= min_ev_threshold
+  min_ev_hurdle_usd: 0.0
+
+  # Settlement payout fraction for partial damage claims
+  partial_refund_fraction: 0.35
+
+  # Prior baseline P(Win) probabilities by claim type
+  base_win_rates:
+    ITEM_NOT_RECEIVED: 0.65
+    DAMAGED: 0.40
+    NOT_AS_DESCRIBED: 0.35
+    UNAUTHORIZED_CHARGE: 0.50
+
+  # Bayesian evidence multipliers
+  evidence_weights:
+    has_gps_geo_match: 0.25
+    has_valid_signature: 0.20
+    past_window_expired: 0.30
+    zero_tracking_events: -0.45

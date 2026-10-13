@@ -1,0 +1,20 @@
+# Deterministic Policy Gate Configuration
+policy_gate:
+  # Maximum allowed days between confirmed courier delivery and dispute filing
+  return_window_days: 14
+
+  # Orders above this amount require strict physical signature verification
+  high_value_cutoff: 250.0
+
+  # Minimum margin threshold for contesting disputes
+  minimum_order_value_to_contest: 10.0
+
+  # Categories eligible for deterministic partial settlement
+  partial_damage_categories:
+    - "DAMAGED"
+    - "PARTIAL_TRANSIT_DEFECT"
+    - "MINOR_COSMETIC_DAMAGE"
+
+  # Automatic escalation reasons
+  escalate_on_missing_tracking: true
+  require_carrier_geo_match: true

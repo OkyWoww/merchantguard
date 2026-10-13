@@ -1,0 +1,17 @@
+{
+  "case_id": "CASE-1001",
+  "summary": "Carrier GPS coordinates and physical signature verify legitimate doorstep handover on 2026-10-02.",
+  "claims": [
+    {
+      "statement": "Order ORD-88219 for $185.00 was marked DELIVERED with recipient signature 'M. Vance' captured.",
+      "fact_ids": ["order_id", "order_amount", "signature", "courier_delivered"]
+    },
+    {
+      "statement": "Carrier telematics confirm GPS coordinates exactly match the registered delivery destination address.",
+      "fact_ids": ["courier_geo"]
+    }
+  ],
+  "draft_reply": "Dear Dispute Arbitration Team,\n\nWe hereby formally contest Dispute CASE-1001 for Order ORD-88219 ($185.00). According to official courier telematic records, the parcel was successfully delivered on October 2, 2026 at 10:15 UTC. Delivery coordinates were GPS-verified at the customer's specified address, and a physical signature ('M. Vance') was captured upon receipt.\n\nBecause conclusive physical proof of delivery exists under Rule R-002, the claim of non-receipt is demonstrably factually incorrect. We respectfully request the dispute fee and order funds be restored to the merchant.\n\nSincerely,\nMerchant Operations Defense Unit",
+  "llm_provider": "replay_cache_rocm_fallback",
+  "verified_citations": true
+}
