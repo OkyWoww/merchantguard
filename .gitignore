@@ -21,6 +21,7 @@ data/audit_log.json
 # Model weights & cache
 models/*
 !models/.gitkeep
+!models/margin.joblib
 
 # Testing & Coverage
 .pytest_cache/

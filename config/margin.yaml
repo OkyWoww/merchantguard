@@ -1,4 +1,4 @@
-# Statistical Margin Recovery Engine Configuration
+# Statistical Margin Recovery Engine Configuration (Parameter-Driven)
 margin_engine:
   # Base arbitration / dispute charge levied by payment rails (e.g. Stripe, Adyen)
   default_dispute_fee: 15.0
@@ -9,14 +9,22 @@ margin_engine:
   # Settlement payout fraction for partial damage claims
   partial_refund_fraction: 0.35
 
-  # Prior baseline P(Win) probabilities by claim type
+  # Parameter-driven decision thresholds (docs/specs/rule.md §C)
+  p_contest_min: 0.60
+  p_partial_min: 0.35
+  marginal_recovery_threshold: 5.0
+
+  # Ratio of merchandise cost unrecovered upon refund (COGS lost)
+  unrecovered_cogs_ratio: 0.50
+
+  # Prior baseline P(Win) probabilities by claim type (heuristic fallback)
   base_win_rates:
     ITEM_NOT_RECEIVED: 0.65
     DAMAGED: 0.40
     NOT_AS_DESCRIBED: 0.35
     UNAUTHORIZED_CHARGE: 0.50
 
-  # Bayesian evidence multipliers
+  # Empirical evidence adjustments
   evidence_weights:
     has_gps_geo_match: 0.25
     has_valid_signature: 0.20

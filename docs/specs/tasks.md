@@ -14,8 +14,8 @@ Rule: tick a box only after attaching the evidence (diff, test output, or comman
 - [x] T1.3 Audit log with hash chain. *Evidence: docs/evidence/day1_plumbing.md (tests + `GET /audit/verify`)*
 
 ## Day 2 — 13–14 Oct: Model & AMD wiring
-- [ ] T2.1 Train/export margin model; calibration/sanity report. *Evidence: training output, joblib size*
-- [ ] T2.2 Margin engine + action logic from config. *Evidence: `pytest tests/test_margin.py`, 4 scenario outputs*
+- [x] T2.1 Train/export margin model; calibration/sanity report. *Evidence: docs/evidence/margin_model_report.md & docs/evidence/day2_margin_engine.md (1,821 bytes joblib)*
+- [x] T2.2 Margin engine + action logic from config. *Evidence: docs/evidence/day2_margin_engine.md (`pytest tests/test_margin.py`, 4 scenarios verified)*
 - [ ] T2.3 vLLM serving on AMD Developer Cloud. *Evidence: serve command, `/v1/models` response, `rocm-smi` capture*
 - [ ] T2.4 LLM router (vLLM → replay → template) + circuit breaker. *Evidence: tests simulating each failure*
 - [ ] T2.6 Credit budget: new AMD AI Developer Program members get $100 cloud credit (per kickoff slides). Find the instance hourly price, compute usable hours, and schedule GPU windows (dev, benchmark, recording); stop the instance when idle. *Evidence: pricing screenshot + calculation in docs/evidence/budget.md*
