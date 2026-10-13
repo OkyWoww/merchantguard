@@ -1,13 +1,32 @@
-# Deterministic Policy Gate Configuration
+# Deterministic Policy Gate Configuration (Rules R-001 through R-006)
 policy_gate:
-  # Maximum allowed days between confirmed courier delivery and dispute filing
+  # R-001: Maximum allowed days between confirmed courier delivery and dispute filing
   return_window_days: 14
 
-  # Orders above this amount require strict physical signature verification
-  high_value_cutoff: 250.0
+  # R-003: Courier contradiction keywords that trigger ambiguity / human escalation
+  courier_contradiction_keywords:
+    - "unattended"
+    - "porch"
+    - "gate"
+    - "outside"
+    - "driveway"
+    - "lobby"
+    - "left near"
+    - "no answer"
 
-  # Minimum margin threshold for contesting disputes
+  # R-004: Orders above this threshold require strict physical signature and geo verification
+  high_value_threshold: 250.0
+  high_value_cutoff: 250.0  # Alias for backward compatibility
+
+  # R-005: Minimum margin / order threshold for contesting disputes
   minimum_order_value_to_contest: 10.0
+
+  # R-006: Required dispute fields that must be present
+  required_fields:
+    - "order_id"
+    - "claim_date"
+    - "delivery_date"
+    - "order_amount"
 
   # Categories eligible for deterministic partial settlement
   partial_damage_categories:
@@ -18,3 +37,4 @@ policy_gate:
   # Automatic escalation reasons
   escalate_on_missing_tracking: true
   require_carrier_geo_match: true
+

@@ -14,7 +14,8 @@ import yaml
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.schemas import (
     DisputeCase,
@@ -82,6 +83,31 @@ def _load_sample_fixtures():
 
 
 _load_sample_fixtures()
+
+WEB_DIR = BASE_DIR / "web"
+
+
+@app.get("/")
+async def root():
+    """Serves the frontend dashboard or fallback service info."""
+    index_file = WEB_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {
+        "status": "online",
+        "service": "MerchantGuard",
+        "version": "1.0.0",
+        "docs": "/docs",
+    }
+
+
+@app.get("/app.js")
+async def get_app_js():
+    """Serves the frontend dashboard JavaScript controller."""
+    js_file = WEB_DIR / "app.js"
+    if js_file.exists():
+        return FileResponse(js_file, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="app.js not found")
 
 
 @app.get("/health")
@@ -216,3 +242,14 @@ async def get_system_metrics():
         "chain_integrity_valid": audit_chain.verify_integrity().valid,
         "llm_mode": os.getenv("LLM_MODE", "replay"),
     }
+
+
+if WEB_DIR.exists():
+    app.mount("/web", StaticFiles(directory=str(WEB_DIR)), name="web_assets")
+
+if __name__ == "__main__":
+    import uvicorn
+
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+

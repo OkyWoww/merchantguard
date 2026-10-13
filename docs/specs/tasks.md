@@ -9,9 +9,9 @@ Rule: tick a box only after attaching the evidence (diff, test output, or comman
 - [ ] T0.4 HOLD (same condition as T0.3). Synthetic data generator draft. *Evidence: generator run output (row counts, class balance)*
 
 ## Day 1 — 12–13 Oct: Plumbing
-- [ ] T1.1 Deploy empty FE+API to public URL. *Evidence: URL + /health response*
-- [ ] T1.2 Pydantic schemas + Policy Gate R-001..R-006 with fixtures. *Evidence: `pytest tests/test_gate.py` output*
-- [ ] T1.3 Audit log with hash chain. *Evidence: tests + verify command output*
+- [x] T1.1 Deploy empty FE+API to public URL. *Evidence: docs/evidence/day1_plumbing.md*
+- [x] T1.2 Pydantic schemas + Policy Gate R-001..R-006 with fixtures. *Evidence: docs/evidence/day1_plumbing.md (`pytest tests/test_gate.py`)*
+- [x] T1.3 Audit log with hash chain. *Evidence: docs/evidence/day1_plumbing.md (tests + `GET /audit/verify`)*
 
 ## Day 2 — 13–14 Oct: Model & AMD wiring
 - [ ] T2.1 Train/export margin model; calibration/sanity report. *Evidence: training output, joblib size*

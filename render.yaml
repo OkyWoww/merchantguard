@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: merchantguard
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: LLM_MODE
+        value: replay
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
