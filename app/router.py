@@ -5,7 +5,7 @@ Module: Task T2.4 Multi-Tier Resilient Inference Router (docs/specs/tech_3.md §
 
 Inference Tiers:
 - Tier 1 (LIVE): AMD Developer Cloud vLLM OpenAI-compatible endpoint (/v1/chat/completions)
-  with strict 8-second timeout. Zero non-AMD external LLM providers permitted.
+  with strict 35-second timeout. Zero non-AMD external LLM providers permitted.
 - Tier 2 (REPLAY): Pre-cached factual narratives from data/replay/ keyed by case ID or hash.
 - Tier 3 (TEMPLATE): Deterministic fact synthesizer with zero LLM dependency.
 
@@ -240,7 +240,7 @@ class InferenceRouter:
     ) -> NarrativePayload:
         """
         Executes the Degradation Ladder (Tier 1 -> Tier 2 -> Tier 3):
-        - Tier 1: AMD ROCm vLLM OpenAI-compatible endpoint (8s timeout)
+        - Tier 1: AMD ROCm vLLM OpenAI-compatible endpoint (35s timeout)
         - Tier 2: Pre-cached Replay Cache (data/replay/)
         - Tier 3: Deterministic Fact-Citation Template Synthesizer
         """
