@@ -11,6 +11,9 @@ import asyncio
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware

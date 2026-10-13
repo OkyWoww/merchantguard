@@ -22,6 +22,10 @@ import time
 import httpx
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from app.schemas import DisputeCase, DecisionResult, NarrativePayload, CitedClaim
 from app.narrator import FactCitationValidator
 
@@ -73,18 +77,22 @@ class InferenceRouter:
         mode: Optional[str] = None,
         vllm_base_url: Optional[str] = None,
         vllm_model: Optional[str] = None,
+        api_key: Optional[str] = None,
         replay_dir: Optional[Path] = None,
-        timeout_seconds: float = 8.0,
+        timeout_seconds: float = 35.0,
         circuit_breaker: Optional[CircuitBreaker] = None,
     ):
         self.mode = (mode or os.getenv("LLM_MODE", "replay")).lower()
         self.vllm_base_url = vllm_base_url or os.getenv(
-            "VLLM_BASE_URL", "http://localhost:8000/v1"
+            "VLLM_BASE_URL", "https://developer.amd.com.cn/radeon/api/v1"
         )
-        self.vllm_model = vllm_model or os.getenv(
-            "VLLM_MODEL", "meta-llama/Llama-3.1-8B-Instruct"
+        self.vllm_model = (
+            vllm_model
+            or os.getenv("MODEL_NAME")
+            or os.getenv("VLLM_MODEL", "DeepSeek-V4-Flash")
         )
-        self.timeout_seconds = timeout_seconds
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("VLLM_API_KEY")
+        self.timeout_seconds = float(os.getenv("VLLM_TIMEOUT", str(timeout_seconds)))
         self.replay_dir = Path(
             replay_dir
             or (Path(__file__).resolve().parent.parent / "data" / "replay")
@@ -250,9 +258,14 @@ class InferenceRouter:
                     case, decision, ground_facts
                 )
 
+                headers = {"Content-Type": "application/json"}
+                if self.api_key:
+                    headers["Authorization"] = f"Bearer {self.api_key}"
+
                 async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
                     resp = await client.post(
                         f"{self.vllm_base_url}/chat/completions",
+                        headers=headers,
                         json={
                             "model": self.vllm_model,
                             "messages": [
@@ -260,7 +273,7 @@ class InferenceRouter:
                                 {"role": "user", "content": user_prompt},
                             ],
                             "temperature": 0.1,
-                            "max_tokens": 512,
+                            "max_tokens": 256,
                         },
                     )
 
