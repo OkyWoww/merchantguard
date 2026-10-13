@@ -75,6 +75,10 @@ class NarrativePayload(BaseModel):
     llm_provider: str = Field(default="amd_rocm_vllm", description="Inference engine used")
     verified_citations: bool = Field(default=True, description="True if all claims are verified against ground facts")
     generation_latency_ms: Optional[float] = None
+    mode: str = Field(default="REPLAY", description="Degradation tier: LIVE | REPLAY | TEMPLATE")
+    model: Optional[str] = Field(default=None, description="Model identifier used")
+    latency_ms: Optional[float] = Field(default=None, description="Latency in milliseconds")
+    tokens_out: Optional[int] = Field(default=None, description="Number of output tokens")
 
 
 class AuditBlock(BaseModel):
