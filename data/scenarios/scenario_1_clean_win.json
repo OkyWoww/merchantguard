@@ -1,0 +1,27 @@
+{
+  "case_id": "CASE-1001",
+  "order_id": "ORD-88219",
+  "claim_date": "2026-10-04T14:30:00Z",
+  "delivery_date": "2026-10-02T10:15:00Z",
+  "order_amount": 185.00,
+  "unit_margin": 62.00,
+  "dispute_fee": 15.00,
+  "claimed_reason": "ITEM_NOT_RECEIVED",
+  "complaint_text": "I was home all day and nobody brought any package to my porch. I want my money back.",
+  "courier_events": [
+    {
+      "timestamp": "2026-10-01T08:00:00Z",
+      "status": "OUT_FOR_DELIVERY",
+      "note": "Courier van dispatched with parcel",
+      "geo_match": true,
+      "signature_present": false
+    },
+    {
+      "timestamp": "2026-10-02T10:15:00Z",
+      "status": "DELIVERED",
+      "note": "Handed directly to resident. Signed by M. Vance",
+      "geo_match": true,
+      "signature_present": true
+    }
+  ]
+}

@@ -12,7 +12,7 @@
     {
       "timestamp": "2026-10-05T12:00:00Z",
       "status": "DELIVERED",
-      "note": "Package left near entry gate",
+      "note": "Package left by fence / unattended near entry gate",
       "geo_match": false,
       "signature_present": false
     }

@@ -12,6 +12,8 @@ policy_gate:
     - "driveway"
     - "lobby"
     - "left near"
+    - "left by fence"
+    - "fence"
     - "no answer"
 
   # R-004: Orders above this threshold require strict physical signature and geo verification

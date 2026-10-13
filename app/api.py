@@ -70,16 +70,16 @@ evaluations_db: Dict[str, Dict[str, Any]] = {}
 
 
 def _load_sample_fixtures():
-    samples_dir = BASE_DIR / "data" / "samples"
-    if samples_dir.exists():
-        for file in samples_dir.glob("*.json"):
-            try:
-                with open(file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    case = DisputeCase(**data)
-                    cases_db[case.case_id] = case
-            except Exception:
-                pass
+    for target_dir in [BASE_DIR / "data" / "scenarios", BASE_DIR / "data" / "samples"]:
+        if target_dir.exists():
+            for file in sorted(target_dir.glob("*.json")):
+                try:
+                    with open(file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        case = DisputeCase(**data)
+                        cases_db[case.case_id] = case
+                except Exception:
+                    pass
 
 
 _load_sample_fixtures()
@@ -121,6 +121,65 @@ async def health_check():
         "vllm_base_url": os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1"),
         "audit_blocks_count": len(audit_chain.chain),
     }
+
+
+@app.get("/scenarios")
+async def list_scenarios():
+    """Returns metadata and pre-configured payloads for the 4 core AMD hackathon demo scenarios."""
+    scenarios_meta = [
+        {
+            "id": "scenario_1",
+            "case_id": "CASE-1001",
+            "name": "Scenario 1: Clean Win",
+            "rule": "R-002",
+            "tag": "Signature & Geolocation Match",
+            "expected_action": "CONTEST",
+            "badge_color": "emerald",
+            "expected_ev": "+$226.57",
+            "description": "Valid signature + geo-match within return window -> CONTEST with positive EV and instant defense evidence.",
+        },
+        {
+            "id": "scenario_2",
+            "case_id": "CASE-1002",
+            "name": "Scenario 2: Ambiguous Evidence",
+            "rule": "R-003",
+            "tag": "Unattended / Left by Fence",
+            "expected_action": "NEEDS_HUMAN",
+            "badge_color": "amber",
+            "expected_ev": "Escalate (P(win)=5%)",
+            "description": "Courier notes 'left by fence / unattended' -> Escalates to human adjuster with highlighted discrepancies.",
+        },
+        {
+            "id": "scenario_3",
+            "case_id": "CASE-1003",
+            "name": "Scenario 3: Window Bypass",
+            "rule": "R-001",
+            "tag": "21 Days > 14-Day Limit",
+            "expected_action": "CONTEST",
+            "badge_color": "cyan",
+            "expected_ev": "Instant (0 LLM Tokens)",
+            "description": "Claim initiated 21 days post-delivery (limit 14) -> CONTEST via statutory window expiration without spending LLM tokens.",
+        },
+        {
+            "id": "scenario_4",
+            "case_id": "CASE-1004",
+            "name": "Scenario 4: Economic Fee Trap",
+            "rule": "R-005",
+            "tag": "Fee ($15) > Margin ($3.80)",
+            "expected_action": "ACCEPT_REFUND",
+            "badge_color": "rose",
+            "expected_ev": "Prevent Net Loss",
+            "description": "Dispute fee exceeds unit margin recovery -> Auto-refunds to prevent economically destructive contest loss.",
+        },
+    ]
+    result = []
+    for sc in scenarios_meta:
+        c_obj = cases_db.get(sc["case_id"])
+        result.append({
+            **sc,
+            "case": c_obj.model_dump() if c_obj else None,
+        })
+    return result
 
 
 @app.get("/cases", response_model=List[DisputeCase])
@@ -176,47 +235,116 @@ async def create_or_evaluate_case(case: DisputeCase):
     return result
 
 
+async def _execute_evaluation_stream(case: DisputeCase):
+    """Streams evaluation stages sequentially formatted as standard SSE."""
+    # Step 1: Policy Gate
+    await asyncio.sleep(0.12)
+    gate_action, gate_reason, gate_status, rule_evals = gate_engine.evaluate(case)
+    gate_payload = {
+        "case_id": case.case_id,
+        "action": gate_action.value,
+        "reason": gate_reason,
+        "status": gate_status,
+        "rules": [r.model_dump() for r in rule_evals],
+    }
+    yield f"event: POLICY_GATE\ndata: {json.dumps({'stage': 'POLICY_GATE', 'payload': gate_payload})}\n\n"
+    yield f"event: gate_evaluated\ndata: {json.dumps(gate_payload)}\n\n"
+
+    # Step 2: Margin Engine
+    await asyncio.sleep(0.15)
+    decision = margin_engine.compute_final_decision(
+        case=case,
+        gate_action=gate_action,
+        gate_reason=gate_reason,
+        gate_status=gate_status,
+        rule_evaluations=rule_evals,
+    )
+    margin_payload = decision.model_dump()
+    yield f"event: MARGIN_ENGINE\ndata: {json.dumps({'stage': 'MARGIN_ENGINE', 'payload': margin_payload})}\n\n"
+    yield f"event: margin_computed\ndata: {json.dumps(margin_payload)}\n\n"
+
+    # Step 3: LLM Narrator (AMD ROCm / Replay / Template)
+    await asyncio.sleep(0.18)
+    narrative = await router_engine.generate_narrative(case, decision)
+    narrative_payload = narrative.model_dump()
+    yield f"event: NARRATION\ndata: {json.dumps({'stage': 'NARRATION', 'payload': narrative_payload})}\n\n"
+    yield f"event: narrative_generated\ndata: {json.dumps(narrative_payload)}\n\n"
+
+    # Step 4: Cryptographic Audit Ledger
+    await asyncio.sleep(0.10)
+    block = audit_chain.append_decision(
+        decision=decision,
+        extra_payload={
+            "streamed": True,
+            "provider": narrative.llm_provider,
+            "narrative_summary": narrative.summary,
+        },
+    )
+    verification = audit_chain.verify_integrity()
+    audit_payload = {
+        "block": block.model_dump(),
+        "integrity_valid": verification.valid,
+        "total_blocks": verification.total_blocks,
+        "chain_head_hash": block.block_hash,
+        "previous_hash": block.previous_hash,
+    }
+    yield f"event: AUDIT_CHAIN\ndata: {json.dumps({'stage': 'AUDIT_CHAIN', 'payload': audit_payload})}\n\n"
+    yield f"event: audit_committed\ndata: {json.dumps(block.model_dump())}\n\n"
+
+    # Save to in-memory evaluations store
+    evaluations_db[case.case_id] = {
+        "case": case.model_dump(),
+        "decision": decision.model_dump(),
+        "narrative": narrative.model_dump(),
+        "audit_block": block.model_dump(),
+    }
+
+    # Step 5: Complete
+    complete_payload = {
+        "status": "completed",
+        "case_id": case.case_id,
+        "action": decision.action.value,
+        "expected_margin_recovery": decision.expected_margin_recovery,
+    }
+    yield f"event: COMPLETE\ndata: {json.dumps({'stage': 'COMPLETE', 'payload': complete_payload})}\n\n"
+    yield f"event: complete\ndata: {json.dumps(complete_payload)}\n\n"
+
+
 @app.get("/cases/{case_id}/stream")
 async def stream_case_evaluation(case_id: str):
     """
     Server-Sent Events (SSE) endpoint providing streaming execution telemetry:
-    Emits stage-by-stage progression (Gate -> Margin -> Narrator -> Audit).
+    Emits stage-by-stage progression (POLICY_GATE -> MARGIN_ENGINE -> NARRATION -> AUDIT_CHAIN).
     """
     if case_id not in cases_db:
         raise HTTPException(status_code=404, detail=f"Case {case_id} not found")
 
     case = cases_db[case_id]
-
-    async def event_generator():
-        # Step 1: Policy Gate
-        await asyncio.sleep(0.15)
-        gate_action, gate_reason, gate_status, rule_evals = gate_engine.evaluate(case)
-        yield f"event: gate_evaluated\ndata: {json.dumps({'action': gate_action.value, 'reason': gate_reason, 'rules': [r.model_dump() for r in rule_evals]})}\n\n"
-
-        # Step 2: Margin Engine
-        await asyncio.sleep(0.20)
-        decision = margin_engine.compute_final_decision(
-            case, gate_action, gate_reason, gate_status, rule_evals
-        )
-        yield f"event: margin_computed\ndata: {json.dumps(decision.model_dump())}\n\n"
-
-        # Step 3: LLM Narrator (AMD ROCm / Replay)
-        await asyncio.sleep(0.25)
-        narrative = await router_engine.generate_narrative(case, decision)
-        yield f"event: narrative_generated\ndata: {json.dumps(narrative.model_dump())}\n\n"
-
-        # Step 4: Cryptographic Audit
-        await asyncio.sleep(0.10)
-        block = audit_chain.append_decision(
-            decision, extra_payload={"streamed": True, "provider": narrative.llm_provider}
-        )
-        yield f"event: audit_committed\ndata: {json.dumps(block.model_dump())}\n\n"
-        yield "event: complete\ndata: {\"status\": \"completed\"}\n\n"
-
     return StreamingResponse(
-        event_generator(),
+        _execute_evaluation_stream(case),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@app.post("/cases/evaluate/stream")
+async def stream_evaluate_case(case: DisputeCase):
+    """
+    Accepts arbitrary dispute case payload and streams end-to-end evaluation via SSE.
+    """
+    cases_db[case.case_id] = case
+    return StreamingResponse(
+        _execute_evaluation_stream(case),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 

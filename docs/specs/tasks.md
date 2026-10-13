@@ -22,10 +22,10 @@ Rule: tick a box only after attaching the evidence (diff, test output, or comman
 - [x] T2.5 First image build + push (moved earlier to surface base-image problems). Dockerfile starts FROM the AMD base image named in Discord, clones the public repo inside the Dockerfile, is built on your own machine or CI (NOT in the notebooks.amd.com/hackathon notebook; AMD staff said that likely won't work), and is pushed to Docker Hub or another public registry. *Evidence: docs/evidence/day2_container.md (ghcr.io/okywoww/merchantguard:latest & docker.io/okywoww/merchantguard:latest)*
 
 ## Day 3 — 14–15 Oct: End-to-end + UI  (SCOPE FREEZE at end of day)
-- [ ] T3.1 Narrator + validator + template fallback. *Evidence: tests incl. injection cases*
-- [ ] T3.2 SSE pipeline end-to-end. *Evidence: curl stream output for each demo scenario*
-- [ ] T3.3 Dashboard UI (queue, compare, decision, narrative, action bar). *Evidence: screenshots*
-- [ ] T3.4 Replay cache generated for all demo cases. *Evidence: replay files + run with LLM disabled*
+- [x] T3.1 Narrator + validator + template fallback. *Evidence: docs/evidence/day3_ui_scenarios.md (`pytest tests/test_api_stream.py` & `tests/test_router.py`)*
+- [x] T3.2 SSE pipeline end-to-end. *Evidence: docs/evidence/day3_ui_scenarios.md (`GET /cases/{case_id}/stream`, `POST /cases/evaluate/stream`, 4 scenarios verified)*
+- [x] T3.3 Dashboard UI (queue, compare, decision, narrative, action bar). *Evidence: docs/evidence/day3_ui_scenarios.md (`web/index.html` & `web/app.js` live tests)*
+- [x] T3.4 Replay cache generated for all demo cases. *Evidence: docs/evidence/day3_ui_scenarios.md (`data/replay/scenario_[1..4]_replay.json` tested with LLM_MODE=replay)*
 
 ## Day 4 — 15–16 Oct: Benchmark & hardening
 - [ ] T4.1 Benchmark on AMD instance (latency p50/p95, tokens/s, concurrency). *Evidence: docs/benchmarks/*

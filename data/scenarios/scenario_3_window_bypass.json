@@ -1,0 +1,20 @@
+{
+  "case_id": "CASE-1003",
+  "order_id": "ORD-71950",
+  "claim_date": "2026-10-10T11:20:00Z",
+  "delivery_date": "2026-09-19T11:20:00Z",
+  "order_amount": 130.00,
+  "unit_margin": 45.00,
+  "dispute_fee": 15.00,
+  "claimed_reason": "NOT_AS_DESCRIBED",
+  "complaint_text": "I opened the box three weeks later and found the fabric color slightly differs from catalog photo.",
+  "courier_events": [
+    {
+      "timestamp": "2026-09-19T11:20:00Z",
+      "status": "DELIVERED",
+      "note": "Delivered to porch",
+      "geo_match": true,
+      "signature_present": false
+    }
+  ]
+}

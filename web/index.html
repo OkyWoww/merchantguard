@@ -3,91 +3,539 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MerchantGuard - Dashboard (Stand-alone Web UI)</title>
+  <title>MerchantGuard - Dispute & Margin Recovery Copilot | AMD ROCm ACT III</title>
+  <meta name="description" content="Deterministic Policy Gate and Statistical Margin Recovery Copilot with AMD ROCm vLLM Cited Narratives and SHA-256 Cryptographic Audit Ledger.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
+    
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 1); }
+
+    /* Glassmorphic panels */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.4);
+    }
+    
+    /* Glowing accents */
+    .glow-emerald {
+      box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.3);
+    }
+    .glow-amber {
+      box-shadow: 0 0 20px -3px rgba(245, 158, 11, 0.3);
+    }
+    .glow-rose {
+      box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.3);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.3);
+    }
+
+    /* Pulsing stream cursor */
+    .stream-cursor::after {
+      content: "▋";
+      display: inline-block;
+      margin-left: 2px;
+      color: #38bdf8;
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
-  <div class="max-w-7xl mx-auto px-4 py-6">
-    <!-- Header -->
-    <header class="flex items-center justify-between pb-6 border-b border-slate-800">
-      <div>
-        <div class="flex items-center gap-3">
-          <h1 class="text-xl font-bold tracking-tight text-white">MerchantGuard</h1>
-          <span class="text-xs px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono">AMD ROCm ACT III</span>
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-rose-500/30 selection:text-white">
+  <!-- Top Navigation & System Status Banner -->
+  <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-900/40">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
         </div>
-        <p class="text-xs text-slate-400 mt-1">Deterministic Policy Gate & Statistical Margin Recovery Copilot</p>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+              MerchantGuard
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono uppercase tracking-wide">
+                AMD ROCm · ACT III
+              </span>
+            </h1>
+          </div>
+          <p class="text-xs text-slate-400">Deterministic Policy Gate & Statistical Margin Recovery Copilot</p>
+        </div>
       </div>
-      <div class="flex items-center gap-4 text-xs">
-        <span class="text-slate-400">Engine: <span id="llm-mode-badge" class="font-mono text-emerald-400">Replay Mode</span></span>
-        <button id="btn-verify-audit" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 border border-slate-700 transition">
-          Verify Audit Chain
+
+      <!-- Runtime Mode & AMD Telemetry Badges -->
+      <div class="flex flex-wrap items-center gap-3 text-xs">
+        <div class="px-2.5 py-1 rounded-md glass-card flex items-center gap-2">
+          <span class="relative flex h-2 w-2">
+            <span id="engine-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span id="engine-dot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="text-slate-400">Inference Tier:</span>
+          <span id="llm-mode-badge" class="font-mono font-semibold text-emerald-400">REPLAY (Zero-Cost / Offline)</span>
+        </div>
+
+        <div class="hidden md:flex px-2.5 py-1 rounded-md glass-card items-center gap-1.5 text-slate-400">
+          <span class="text-slate-500">AMD Credit:</span>
+          <span class="font-mono text-slate-200 font-medium">$100 Active</span>
+          <span class="text-[10px] text-slate-500">(~38.5h GPU)</span>
+        </div>
+
+        <button id="btn-verify-audit" class="px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition flex items-center gap-1.5 font-medium shadow-sm active:scale-95">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Verify Ledger
         </button>
       </div>
-    </header>
+    </div>
 
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
-      <!-- Left Column: Case Queue -->
-      <div class="lg:col-span-4 bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-        <h2 class="text-sm font-semibold text-slate-200 mb-3 flex items-center justify-between">
-          <span>Dispute Queue</span>
-          <span id="queue-count" class="text-xs font-mono text-slate-400">4 Scenarios</span>
-        </h2>
-        <div id="cases-list" class="space-y-2">
-          <!-- Dynamic cases injected here -->
+    <!-- Sub-banner: Track 3 Disclosure -->
+    <div class="bg-slate-900/60 border-t border-slate-800/60 px-4 py-1 text-[11px] text-slate-400 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          <span>Track 3 Compliance Note: Win probability P(win) modeled via calibrated Logistic Regression. LLM acts strictly as factual evidence synthesizer.</span>
+        </span>
+        <span class="hidden sm:inline text-slate-500 font-mono">Dataset: 5,000 synthetic merchant disputes</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 space-y-6">
+    <!-- SECTION 1: 4 CORE HACKATHON DEMO SCENARIOS SELECTOR -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <span>Core Demo Scenarios (1-Click Evaluation)</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono">Tasks T3.1 · T3.2</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Click any scenario to stream sequential policy gate, margin EV calculation, cited narrative, and cryptographic ledger block.</p>
+        </div>
+        <span id="active-scenario-indicator" class="text-xs font-mono text-cyan-400 hidden sm:inline">Scenario 1 Active</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- Scenario 1 Card -->
+        <button id="btn-scenario-1" onclick="triggerScenario('CASE-1001', 1)" class="scenario-btn text-left p-3.5 rounded-xl border border-emerald-500/40 bg-slate-900/90 hover:border-emerald-400 hover:bg-slate-800/80 transition relative overflow-hidden group shadow-lg shadow-emerald-950/20 ring-1 ring-emerald-500/20">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+              Scenario 1: Clean Win
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">R-002</span>
+          </div>
+          <div class="text-xs font-semibold text-white">Signature + Geo-Match</div>
+          <div class="text-[11px] text-slate-400 mt-1 line-clamp-2">Doorstep handover with signed proof within 14-day window.</div>
+          <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+            <span class="font-mono text-slate-400">Order: $185.00</span>
+            <span class="font-mono font-bold text-emerald-400">CONTEST (+$226.57)</span>
+          </div>
+        </button>
+
+        <!-- Scenario 2 Card -->
+        <button id="btn-scenario-2" onclick="triggerScenario('CASE-1002', 2)" class="scenario-btn text-left p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-amber-400 hover:bg-slate-800/80 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-mono font-bold text-amber-400 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
+              Scenario 2: Ambiguous
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">R-003</span>
+          </div>
+          <div class="text-xs font-semibold text-white">Left by Fence / Unattended</div>
+          <div class="text-[11px] text-slate-400 mt-1 line-clamp-2">Carrier note discrepancy triggers safe human escalation.</div>
+          <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+            <span class="font-mono text-slate-400">Order: $420.00</span>
+            <span class="font-mono font-bold text-amber-400">NEEDS_HUMAN</span>
+          </div>
+        </button>
+
+        <!-- Scenario 3 Card -->
+        <button id="btn-scenario-3" onclick="triggerScenario('CASE-1003', 3)" class="scenario-btn text-left p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400 hover:bg-slate-800/80 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-mono font-bold text-cyan-400 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
+              Scenario 3: Window Bypass
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">R-001</span>
+          </div>
+          <div class="text-xs font-semibold text-white">21 Days Elapsed (> 14d)</div>
+          <div class="text-[11px] text-slate-400 mt-1 line-clamp-2">Instant procedural contest with zero LLM tokens spent.</div>
+          <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+            <span class="font-mono text-slate-400">Order: $130.00</span>
+            <span class="font-mono font-bold text-cyan-400">CONTEST (0 Tokens)</span>
+          </div>
+        </button>
+
+        <!-- Scenario 4 Card -->
+        <button id="btn-scenario-4" onclick="triggerScenario('CASE-1004', 4)" class="scenario-btn text-left p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-rose-400 hover:bg-slate-800/80 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-mono font-bold text-rose-400 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-rose-400 inline-block"></span>
+              Scenario 4: Economic Trap
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30">R-005</span>
+          </div>
+          <div class="text-xs font-semibold text-white">Fee ($15) > Margin ($3.80)</div>
+          <div class="text-[11px] text-slate-400 mt-1 line-clamp-2">Fee exceeds recoverable unit profit; auto-refund protects merchant.</div>
+          <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+            <span class="font-mono text-slate-400">Order: $16.50</span>
+            <span class="font-mono font-bold text-rose-400">ACCEPT_REFUND</span>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 2: STREAMING EXECUTION PROGRESS STEPPER -->
+    <section class="glass-panel rounded-xl p-3 sm:p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+        <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <span>Server-Sent Events (SSE) Live Pipeline</span>
+          <span id="sse-status-badge" class="font-mono text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">IDLE</span>
+        </span>
+        <div class="text-[11px] font-mono text-slate-400">
+          Stream Target: <span id="active-stream-endpoint" class="text-slate-200">GET /cases/CASE-1001/stream</span>
         </div>
       </div>
 
-      <!-- Right Column: Live Copilot Evaluation Workspace -->
-      <div class="lg:col-span-8 space-y-6">
-        <!-- Decision Banner -->
-        <div id="decision-card" class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-          <div class="flex items-center justify-between">
+      <!-- Sequential Stage Stepper -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+        <!-- Stage 1 -->
+        <div id="step-gate" class="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-slate-300">1. POLICY GATE</span>
+            <span id="step-gate-badge" class="font-mono text-[10px] text-slate-500">PENDING</span>
+          </div>
+          <div class="text-[11px] text-slate-400">Rules R-001..R-006</div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div id="step-margin" class="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-slate-300">2. MARGIN ENGINE</span>
+            <span id="step-margin-badge" class="font-mono text-[10px] text-slate-500">PENDING</span>
+          </div>
+          <div class="text-[11px] text-slate-400">Expected Value & P(Win)</div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div id="step-narration" class="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-slate-300">3. FACT NARRATION</span>
+            <span id="step-narration-badge" class="font-mono text-[10px] text-slate-500">PENDING</span>
+          </div>
+          <div class="text-[11px] text-slate-400">Evidence Citation Synthesizer</div>
+        </div>
+
+        <!-- Stage 4 -->
+        <div id="step-audit" class="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-slate-300">4. AUDIT CHAIN</span>
+            <span id="step-audit-badge" class="font-mono text-[10px] text-slate-500">PENDING</span>
+          </div>
+          <div class="text-[11px] text-slate-400">SHA-256 Ledger Block</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: WORKSPACE GRID (LEFT: QUEUE & EVIDENCE, RIGHT: COPILOT DECISION) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- LEFT COLUMN: Case Queue + Telemetry Inspector (lg:col-span-4) -->
+      <div class="lg:col-span-4 space-y-4">
+        <!-- Dispute Queue -->
+        <div class="glass-panel rounded-xl p-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Dispute Case Queue</h3>
+            <span id="queue-count" class="text-xs font-mono text-slate-400">4 Cases</span>
+          </div>
+          <div id="cases-list" class="space-y-2 mt-3 max-h-[220px] overflow-y-auto pr-1">
+            <!-- Dynamic cases injected here -->
+          </div>
+        </div>
+
+        <!-- Evidence Compare Panel (Buyer Claim vs Carrier Telematics) -->
+        <div class="glass-panel rounded-xl p-4 space-y-3">
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center justify-between">
+            <span>Evidence Compare Panel</span>
+            <span id="discrepancy-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Verified Consistent</span>
+          </h3>
+
+          <!-- Buyer Claim Box -->
+          <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-semibold text-rose-400">Buyer Dispute Claim</span>
+              <span id="buyer-reason-tag" class="font-mono text-[11px] text-slate-400">ITEM_NOT_RECEIVED</span>
+            </div>
+            <p id="buyer-statement" class="text-xs text-slate-300 italic">"I was home all day and nobody brought any package to my porch. I want my money back."</p>
+            <div class="mt-2 text-[10px] font-mono text-slate-500 flex items-center justify-between">
+              <span>Filing Date: <span id="buyer-claim-date" class="text-slate-400">2026-10-04</span></span>
+              <span>Disputed: <span id="buyer-order-amount" class="text-rose-400 font-semibold">$185.00</span></span>
+            </div>
+          </div>
+
+          <!-- Carrier Telematic Trail Box -->
+          <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-semibold text-emerald-400">Carrier Telematic Trail</span>
+              <span id="carrier-status-tag" class="font-mono text-[11px] text-emerald-400">DELIVERED</span>
+            </div>
+            <div id="carrier-events-list" class="space-y-1.5 text-xs text-slate-300 mt-2">
+              <!-- Dynamically populated carrier events -->
+            </div>
+            
+            <div class="mt-3 pt-2 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[11px] font-mono">
+              <div class="flex items-center justify-between px-2 py-1 rounded bg-slate-900 border border-slate-800">
+                <span class="text-slate-400">GPS Geo-Match:</span>
+                <span id="carrier-geo-tag" class="text-emerald-400 font-bold">MATCH ✓</span>
+              </div>
+              <div class="flex items-center justify-between px-2 py-1 rounded bg-slate-900 border border-slate-800">
+                <span class="text-slate-400">Signature:</span>
+                <span id="carrier-sig-tag" class="text-emerald-400 font-bold">SIGNED ✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Copilot Decision & Streaming Telemetry (lg:col-span-8) -->
+      <div class="lg:col-span-8 space-y-4">
+        
+        <!-- DECISION BANNER (Decision First Principle) -->
+        <div id="decision-card" class="glass-panel rounded-xl p-5 relative overflow-hidden transition glow-emerald">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span class="text-xs uppercase tracking-wider text-slate-400">Recommended Action</span>
-              <div id="action-badge" class="text-2xl font-bold mt-1 font-mono text-slate-300">SELECT A CASE</div>
+              <div class="text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                <span>Deterministic Copilot Recommendation</span>
+                <span id="gate-status-pill" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">GATE_APPROVED</span>
+              </div>
+              <div class="flex items-baseline gap-3 mt-1.5">
+                <div id="action-badge" class="text-3xl font-extrabold font-mono text-emerald-400 tracking-tight">CONTEST</div>
+                <span id="reason-code-badge" class="font-mono text-xs px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">R002_DELIVERY_CONFIRMED</span>
+              </div>
             </div>
-            <div class="text-right">
-              <span class="text-xs text-slate-400">Expected Margin Recovery</span>
-              <div id="ev-value" class="text-xl font-mono font-semibold text-slate-200">$0.00</div>
-              <div id="p-win-value" class="text-xs font-mono text-slate-400 mt-0.5">P(Win): --</div>
+
+            <!-- Recovery EV Highlights -->
+            <div class="text-left sm:text-right">
+              <span class="text-xs text-slate-400 block">Expected Margin Recovery (EV)</span>
+              <div id="ev-value" class="text-2xl sm:text-3xl font-mono font-bold text-emerald-400 mt-1">+$226.57</div>
+              <div class="flex items-center sm:justify-end gap-2 mt-1">
+                <span id="p-win-value" class="text-xs font-mono font-semibold text-slate-300">P(Win): 98.0%</span>
+                <span class="text-[10px] text-slate-500 font-mono">(Calibrated Model)</span>
+              </div>
             </div>
           </div>
-          <div id="reason-desc" class="text-xs text-slate-400 mt-3 border-t border-slate-800/80 pt-3">
-            Select a dispute case from the queue to stream real-time policy evaluation.
+
+          <div id="reason-desc" class="text-xs text-slate-300 mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+            <span>Conclusive proof of doorstep delivery detected. Automated contest protects full merchant margin.</span>
+            <span class="font-mono text-[11px] text-slate-500">Latency: <span id="pipeline-latency">240ms</span></span>
           </div>
         </div>
 
-        <!-- Policy Gate Rules Evaluator -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
-          <h3 class="text-sm font-semibold text-slate-200 mb-3">Deterministic Policy Gate (R-001 to R-006)</h3>
-          <div id="rules-list" class="space-y-2 text-xs">
-            <div class="text-slate-500 italic">No case selected yet.</div>
-          </div>
-        </div>
-
-        <!-- LLM Cited Narrative Stream -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
+        <!-- MARGIN RECOVERY BREAKDOWN (Financial Metrics Card) -->
+        <div class="glass-panel rounded-xl p-5">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-200">Fact-Cited Arbitration Narrative</h3>
-            <span id="citation-status" class="text-xs font-mono text-emerald-400">Ground-Truth Verified</span>
+            <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Financial Margin Recovery Breakdown</h3>
+            <button onclick="toggleFormulaInfo()" class="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+              <span>Formula: EV = P(Win)×(Order+Margin) - (1-P)×Fee</span>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </button>
           </div>
-          <div id="narrative-summary" class="text-xs text-slate-300 bg-slate-950 p-3 rounded border border-slate-800/60 mb-3">
-            Awaiting case trigger...
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <!-- Metric 1: Loss if Refunded -->
+            <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Loss if Refunded</span>
+              <div id="metric-loss-refund" class="text-base font-mono font-bold text-rose-400 mt-1">-$185.00</div>
+              <span class="text-[10px] text-slate-500 mt-0.5 block">Full Order Value</span>
+            </div>
+
+            <!-- Metric 2: Win Probability -->
+            <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Win Probability P(Win)</span>
+              <div id="metric-p-win" class="text-base font-mono font-bold text-emerald-400 mt-1">98.0%</div>
+              <div class="w-full bg-slate-800 h-1 rounded-full mt-1.5 overflow-hidden">
+                <div id="p-win-bar" class="bg-emerald-400 h-full rounded-full" style="width: 98%"></div>
+              </div>
+            </div>
+
+            <!-- Metric 3: Dispute Fee Risk -->
+            <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Gateway Dispute Fee</span>
+              <div id="metric-dispute-fee" class="text-base font-mono font-bold text-amber-400 mt-1">-$15.00</div>
+              <span class="text-[10px] text-slate-500 mt-0.5 block">Payment Gateway Fee</span>
+            </div>
+
+            <!-- Metric 4: Net Expected Recovery -->
+            <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Net Expected Recovery</span>
+              <div id="metric-net-recovery" class="text-base font-mono font-bold text-emerald-400 mt-1">+$226.57</div>
+              <span class="text-[10px] text-slate-500 mt-0.5 block">Contest EV vs Refund</span>
+            </div>
           </div>
-          <div>
-            <span class="text-xs text-slate-400 block mb-1">Formal Dispute Response Draft:</span>
-            <pre id="draft-reply" class="text-xs text-slate-300 bg-slate-950 p-3 rounded border border-slate-800/60 whitespace-pre-wrap font-sans">Draft will appear here.</pre>
+
+          <!-- Formula Explainer Drawer (Hidden by default) -->
+          <div id="formula-explainer" class="mt-3 p-3 rounded-lg bg-slate-900 border border-slate-800/80 text-xs text-slate-300 hidden">
+            <div class="font-mono text-cyan-300 font-semibold mb-1">Statistical Margin Engine Expected Value Calculation:</div>
+            <div id="formula-math-text" class="font-mono text-[11px] text-slate-300">
+              EV = 0.98 × ($185.00 + $62.00) - (1 - 0.98) × $15.00 = 0.98 × $247.00 - 0.02 × $15.00 = $242.06 - $0.30 = +$226.57
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1.5">If EV > 0 and Gate status is GATE_APPROVED, the Copilot authorizes CONTEST. If dispute fee exceeds unit margin (Rule R-005), system forces ACCEPT_REFUND to prevent economic fee trap.</p>
           </div>
         </div>
+
+        <!-- DETERMINISTIC POLICY GATE CHECKLIST (R-001 through R-006) -->
+        <div class="glass-panel rounded-xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Deterministic Policy Gate Rules (R-001 .. R-006)</h3>
+            <span class="text-[11px] font-mono text-slate-400">Zero LLM Decisions</span>
+          </div>
+          <div id="rules-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+            <div class="text-slate-500 italic p-2">Loading policy rules...</div>
+          </div>
+        </div>
+
+        <!-- FACT-CITED ARBITRATION NARRATIVE STREAM -->
+        <div class="glass-panel rounded-xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Fact-Cited Arbitration Narrative</h3>
+              <span id="citation-status" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                Ground-Truth Verified ✓
+              </span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">
+              Provider: <span id="narrative-provider" class="text-cyan-400">Replay Cache (Zero-Cost)</span>
+            </span>
+          </div>
+
+          <!-- Real-time Summary Box -->
+          <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
+            <div class="text-[11px] font-mono text-slate-400 mb-1">Executive Summary:</div>
+            <p id="narrative-summary" class="text-xs text-slate-200 font-sans leading-relaxed">
+              Carrier GPS coordinates and physical signature verify legitimate doorstep handover on 2026-10-02.
+            </p>
+          </div>
+
+          <!-- Citation Chips -->
+          <div class="flex flex-wrap items-center gap-1.5" id="citation-chips">
+            <span class="text-[11px] text-slate-400 mr-1">Citations:</span>
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 cursor-pointer hover:bg-cyan-900 transition">[F1: ORD-88219]</span>
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 cursor-pointer hover:bg-cyan-900 transition">[F2: Signed 'M. Vance']</span>
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 cursor-pointer hover:bg-cyan-900 transition">[F3: Geo-Match ✓]</span>
+          </div>
+
+          <!-- Response Draft -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs text-slate-400">Formal Processor Response Draft:</span>
+              <button id="btn-copy-draft" onclick="copyResponseDraft()" class="text-xs font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                <span id="copy-text">Copy Response</span>
+              </button>
+            </div>
+            <pre id="draft-reply" class="text-xs text-slate-300 bg-slate-950/90 p-3.5 rounded-lg border border-slate-800/80 whitespace-pre-wrap font-sans leading-relaxed max-h-[180px] overflow-y-auto">Draft response will stream here...</pre>
+          </div>
+        </div>
+
+        <!-- CRYPTOGRAPHIC AUDIT CHAIN INSPECTOR -->
+        <div class="glass-panel rounded-xl p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                <span>Cryptographic Audit Chain Inspector</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">SHA-256 Tamper-Evident</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Every policy gate and margin decision is permanently chained to the genesis block.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="audit-integrity-badge" class="text-xs font-mono text-emerald-400 font-semibold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                Ledger Valid (100%)
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
+            <!-- Block Index -->
+            <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+              <span class="text-slate-500 block text-[10px]">CURRENT BLOCK INDEX</span>
+              <div id="audit-block-index" class="text-slate-200 font-bold mt-0.5">#1</div>
+            </div>
+
+            <!-- Current Block Hash -->
+            <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 truncate">
+              <span class="text-slate-500 block text-[10px]">SHA-256 BLOCK HASH</span>
+              <div id="audit-block-hash" class="text-emerald-400 font-bold mt-0.5 truncate" title="Hash">f3a8b9409...</div>
+            </div>
+
+            <!-- Previous Block Hash (Genesis Link) -->
+            <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 truncate">
+              <span class="text-slate-500 block text-[10px]">PREVIOUS BLOCK HASH (PARENT)</span>
+              <div id="audit-prev-hash" class="text-slate-400 font-medium mt-0.5 truncate" title="Previous Hash">0000000000000000... (Genesis)</div>
+            </div>
+          </div>
+        </div>
+
       </div>
+    </div>
+  </main>
+
+  <!-- Audit Verification Modal / Toast Dialog -->
+  <div id="audit-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel max-w-md w-full rounded-2xl p-6 border border-slate-700 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          </div>
+          <h4 class="text-base font-bold text-white">Audit Ledger Integrity Verification</h4>
+        </div>
+        <button onclick="closeAuditModal()" class="text-slate-400 hover:text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between py-1.5 border-b border-slate-800">
+          <span class="text-slate-400">Cryptographic Status:</span>
+          <span id="modal-audit-status" class="font-mono font-bold text-emerald-400">VALID (UNBROKEN)</span>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-slate-800">
+          <span class="text-slate-400">Total Immutable Blocks:</span>
+          <span id="modal-audit-blocks" class="font-mono text-slate-200">1</span>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-slate-800">
+          <span class="text-slate-400">Hash Algorithm:</span>
+          <span class="font-mono text-slate-200">SHA-256 (Pre-image Resistant)</span>
+        </div>
+        <p id="modal-audit-message" class="text-slate-300 text-[11px] pt-1">
+          Cryptographic chain verified from Genesis block #0 to present head. No tampering detected.
+        </p>
+      </div>
+
+      <button onclick="closeAuditModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition">
+        Close Inspector
+      </button>
     </div>
   </div>
 

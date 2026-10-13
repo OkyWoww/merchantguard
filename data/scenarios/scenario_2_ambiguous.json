@@ -1,0 +1,20 @@
+{
+  "case_id": "CASE-1002",
+  "order_id": "ORD-94301",
+  "claim_date": "2026-10-06T18:45:00Z",
+  "delivery_date": "2026-10-05T12:00:00Z",
+  "order_amount": 420.00,
+  "unit_margin": 140.00,
+  "dispute_fee": 15.00,
+  "claimed_reason": "ITEM_NOT_RECEIVED",
+  "complaint_text": "High value designer jacket missing. Carrier marked delivered but no parcel in building lobby or mail room.",
+  "courier_events": [
+    {
+      "timestamp": "2026-10-05T12:00:00Z",
+      "status": "DELIVERED",
+      "note": "Package left by fence / unattended near entry gate",
+      "geo_match": false,
+      "signature_present": false
+    }
+  ]
+}
