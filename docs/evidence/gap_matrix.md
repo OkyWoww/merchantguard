@@ -11,12 +11,12 @@
 
 | # | Requirement | Status | Evidence / Code Ref | Risk |
 |---|---|---|---|---|
-| R1 | Open model on AMD infrastructure | `MET` | AMD Token Factory gateway (`developer.amd.com.cn/radeon/api/v1`), model `self-dploy/DeepSeek-V4-Flash`. HTTP 200 confirmed: 8,514 ms, 31 tokens. `app/router.py` Tier 1. | — |
+| R1 | Open model on AMD infrastructure | `MET` | AMD Token Factory gateway (`developer.amd.com.cn/radeon/api/v1`), model `self-dploy/Gemma-4-31B-IT` (and DeepSeek-V4-Flash compatible). HTTP 200 confirmed. `app/router.py` Tier 1. | — |
 | R2 | LLM is NOT the only forecasting method | `MET` | scikit-learn logistic regression (`models/margin.joblib`) computes P(win) + EV independently. `app/margin.py`, `tests/test_margin.py` 5/5 PASS. | — |
 | R3 | Containerized app, public GitHub repo, runnable README | `MET` | `Dockerfile` + `docker-compose.yml`. Images pushed: `ghcr.io/okywoww/merchantguard:latest`, `docker.io/okywoww/merchantguard:latest`. T4.3 clean-clone verified. | — |
 | R4 | Public demo URL reachable | `MET` | T1.1 deploy evidence: `docs/evidence/day1_plumbing.md`. | — |
 | R5 | README explains how P(win) is calculated | `MET` | `README.md §"How P(Win) is Calculated"` — logistic regression formula, feature coefficients, Brier score, synthetic-data label. | — |
-| R6 | AMD infrastructure evidence attached | `UNVERIFIED` | Client-side latency benchmark exists but ran in `LLM_MODE=replay`. Live benchmark (T2.3 / T4.1-live) not yet captured. Token Factory portal screenshot not yet taken. | **HIGH** |
+| R6 | AMD infrastructure evidence attached | `MET` | Live benchmark captured in `docs/evidence/live_gateway_benchmark.md`: HTTP 200 with `Gemma-4-31B-IT` on AMD Radeon Cloud Token Factory endpoint. | — |
 | R7 | App works without LLM (resilience) | `MET` | Tier 3 TEMPLATE: 1 ms, zero LLM, 3 grounded citations. All 32 default tests pass in REPLAY mode in 6.6 s. | — |
 | R8 | Decision by rules + model, never LLM | `MET` | `rule.md A1–A2`. LLM narrator has no tools, cannot override action. Gate runs first on every call. | — |
 | R9 | Mode always visible (LIVE / REPLAY / TEMPLATE) | `MET` | Mode banner in `web/index.html`. `NarrativePayload.mode` on every response. Audit log records mode. `design.md §7`. | — |
@@ -47,7 +47,7 @@
 
 | Item | Status | Detail |
 |---|---|---|
-| Gateway endpoint confirmed live | `MET` | `developer.amd.com.cn/radeon/api/v1` returned HTTP 200 with `self-dploy/DeepSeek-V4-Flash`. |
+| Gateway endpoint confirmed live | `MET` | `developer.amd.com.cn/radeon/api/v1` returned HTTP 200 with `self-dploy/Gemma-4-31B-IT`. |
 | RPM (requests per minute) cap | `UNVERIFIED` | Not yet retrieved from portal or by intentional 429 test. **Risk: 429 during judging window if cap is low.** |
 | Per-request token limit (max_tokens ceiling) | `UNVERIFIED` | Current calls use `max_tokens=256` for narrative. Not confirmed against gateway limit. |
 | Monthly / daily quota | `UNVERIFIED` | Portal quota dashboard not yet screenshotted. |
@@ -71,7 +71,7 @@
 |---|---|---|
 | Policy Gate R-001..R-006 | High — every call | Pure Python, CPU-local. No AMD. **Intentional.** |
 | Margin Engine (logistic regression) | High — every call | CPU-local (`models/margin.joblib`). No AMD. **Intentional.** |
-| LLM Narrator (DeepSeek-V4-Flash) | Medium — every case that passes the gate | **AMD Token Factory.** Generates cited, schema-validated evidence paragraph per case. ~30–60 tokens out per call. |
+| LLM Narrator (Gemma-4-31B-IT) | Medium — every case that passes the gate | **AMD Token Factory.** Generates cited, schema-validated evidence paragraph per case. Up to 256 tokens out per call. |
 | Degradation ladder | Demo/resilience | Shows AMD dependency is live and switchable. Tier 2 and 3 keep product alive if AMD endpoint is slow. |
 
 **Rationale for current depth (to articulate to judges):**
