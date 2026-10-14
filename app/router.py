@@ -89,7 +89,7 @@ class InferenceRouter:
         self.vllm_model = (
             vllm_model
             or os.getenv("MODEL_NAME")
-            or os.getenv("VLLM_MODEL", "DeepSeek-V4-Flash")
+            or os.getenv("VLLM_MODEL", "Gemma-4-31B-IT")
         )
         self.api_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("VLLM_API_KEY")
         self.timeout_seconds = float(os.getenv("VLLM_TIMEOUT", str(timeout_seconds)))

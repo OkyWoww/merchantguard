@@ -29,7 +29,7 @@ async function loadHealth() {
 
       if (badge) {
         if (data.llm_mode === "live" || data.llm_mode === "vllm") {
-          badge.textContent = "AMD ROCm vLLM (LIVE)";
+          badge.textContent = `AMD ROCm (${data.model_name || "Gemma-4-31B-IT"} · LIVE)`;
           badge.className = "font-mono font-semibold text-emerald-400";
         } else if (data.llm_mode === "replay") {
           badge.textContent = "REPLAY (Zero-Cost / Offline)";
@@ -432,7 +432,7 @@ function connectSSEStream(caseId) {
       const provider = document.getElementById("narrative-provider");
       if (provider) {
         if (payload.mode === "LIVE") {
-          provider.textContent = "AMD ROCm vLLM (LIVE)";
+          provider.textContent = `AMD ROCm (${payload.model || "Gemma-4-31B-IT"} · LIVE)`;
           provider.className = "text-emerald-400 font-semibold";
         } else if (payload.mode === "REPLAY") {
           provider.textContent = "Replay Cache (Zero-Cost)";

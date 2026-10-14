@@ -121,6 +121,7 @@ async def health_check():
         "service": "MerchantGuard",
         "version": "1.0.0",
         "llm_mode": os.getenv("LLM_MODE", "replay"),
+        "model_name": os.getenv("MODEL_NAME", os.getenv("VLLM_MODEL", "Gemma-4-31B-IT")),
         "vllm_base_url": os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1"),
         "audit_blocks_count": len(audit_chain.chain),
     }

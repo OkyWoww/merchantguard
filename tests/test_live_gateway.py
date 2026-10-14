@@ -154,7 +154,8 @@ async def test_live_p50_p95_latency_benchmark():
     """LIVE: 5 sequential calls to AMD Token Factory; reports p50/p95 latency and tokens/s."""
     api_key = os.getenv("OPENAI_API_KEY", "")
     base_url = os.getenv("VLLM_BASE_URL", "https://developer.amd.com.cn/radeon/api/v1")
-    model = os.getenv("MODEL_NAME", "DeepSeek-V4-Flash")
+    model = os.getenv("MODEL_NAME", "Gemma-4-31B-IT")
+    timeout = float(os.getenv("VLLM_TIMEOUT", "60.0"))
 
     latencies = []
     tokens_list = []
@@ -171,7 +172,7 @@ async def test_live_p50_p95_latency_benchmark():
             "max_tokens": 10,
         }
         t0 = time.perf_counter()
-        async with httpx.AsyncClient(timeout=35.0) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             resp = await client.post(f"{base_url}/chat/completions", headers=headers, json=payload)
         elapsed_ms = (time.perf_counter() - t0) * 1000
 
