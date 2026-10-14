@@ -1,54 +1,31 @@
-# syntax=docker/dockerfile:1
 ARG BASE_IMAGE=python:3.11-slim
+FROM ${BASE_IMAGE}
 
-# ==============================================================================
-# Stage 1: Build & Dependency Resolution
-# ==============================================================================
-FROM ${BASE_IMAGE} AS builder
+ARG APP_MODULE=app.api:app
+RUN test -n "$APP_MODULE" || (echo "ERROR: pass --build-arg APP_MODULE=<module>:<app>" && exit 1)
 
-WORKDIR /build
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
-
-# ==============================================================================
-# Stage 2: Hardened Runtime Container
-# ==============================================================================
-FROM ${BASE_IMAGE} AS runner
+ENV APP_MODULE=${APP_MODULE} \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000 \
+    DATABASE_URL=sqlite:////app/var/mg.db \
+    LLM_MODE=replay
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PORT=8000 \
-    LLM_MODE=replay \
-    PATH="/home/appuser/.local/bin:${PATH}"
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install curl for container health check probe
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN groupadd --gid 10001 appuser \
+    && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin appuser
 
-# Security hardening: Non-root application user
-RUN useradd -m -u 1000 appuser
-
-# Copy installed python dependencies from builder stage
-COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
-
-# Copy project source code and assets
 COPY --chown=appuser:appuser . .
+RUN mkdir -p /app/var && chown appuser:appuser /app/var
 
 USER appuser
-
 EXPOSE 8000
 
-# Container healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD python -c "import os,urllib.request as u; u.urlopen('http://127.0.0.1:%s/health' % os.getenv('PORT','8000'), timeout=4)"
 
-# Dynamic PORT binding for cloud hosts (Render, Koyeb, Railway)
-CMD exec uvicorn app.api:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD ["sh", "-c", "exec uvicorn ${APP_MODULE} --host 0.0.0.0 --port ${PORT}"]
