@@ -1,13 +1,14 @@
 # MerchantGuard (Dispute & Margin Recovery Copilot)
 
 > **AMD Developer Hackathon: ACT III — Track: Reinvent Commerce**  
-> An autonomous, tamper-evident e-commerce dispute decision engine where a **Deterministic Policy Gate** and **Calibrated Statistical Margin Engine** make authoritative decisions, while an open-weights LLM served via the **AMD Token Factory gateway** (`DeepSeek-V4-Flash` — model ID as returned by gateway: `self-dploy/DeepSeek-V4-Flash`) generates fact-cited arbitration evidence — with resilient Replay and Template fallback.
+> An autonomous, tamper-evident e-commerce dispute decision engine where a **Deterministic Policy Gate** and **Calibrated Statistical Margin Engine** make authoritative decisions, while an open-weights LLM served via the **AMD Token Factory gateway** (`Gemma-4-31B-IT` / `DeepSeek-V4-Flash`) generates fact-cited arbitration evidence — with resilient Replay and Template fallback.
 
-[![Tests](https://img.shields.io/badge/pytest-30%20passed-emerald)](tests/)
+[![Tests](https://img.shields.io/badge/pytest-40%20passed-emerald)](tests/)
 [![Docker Image](https://img.shields.io/badge/GHCR-ghcr.io%2Fokywoww%2Fmerchantguard%3Alatest-blue)](https://github.com/OkyWoww/merchantguard/pkgs/container/merchantguard)
 [![Track](https://img.shields.io/badge/AMD%20Hackathon-Track%203%3A%20Reinvent%20Commerce-rose)](https://lablab.ai/)
-[![Inference](https://img.shields.io/badge/AMD-Token%20Factory%20%7C%20DeepSeek--V4--Flash-purple)](app/router.py)
+[![Inference](https://img.shields.io/badge/AMD-Token%20Factory%20%7C%20Gemma--4--31B--IT-purple)](app/router.py)
 [![Audit](https://img.shields.io/badge/Audit%20Ledger-SHA--256%20Hash--Chain-cyan)](app/audit.py)
+[![Buku Panduan](https://img.shields.io/badge/Buku%20Panduan-Bahasa%20Indonesia-emerald)](docs/PANDUAN_PENGGUNAAN.md)
 
 ---
 
