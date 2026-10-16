@@ -8,7 +8,7 @@
 [![Track](https://img.shields.io/badge/AMD%20Hackathon-Track%203%3A%20Reinvent%20Commerce-rose)](https://lablab.ai/)
 [![Inference](https://img.shields.io/badge/AMD-Token%20Factory%20%7C%20Gemma--4--31B--IT-purple)](app/router.py)
 [![Audit](https://img.shields.io/badge/Audit%20Ledger-SHA--256%20Hash--Chain-cyan)](app/audit.py)
-[![Buku Panduan](https://img.shields.io/badge/Buku%20Panduan-Bahasa%20Indonesia-emerald)](docs/PANDUAN_PENGGUNAAN.md)
+[![User Guide (ID)](https://img.shields.io/badge/User%20Guide%20(ID)-Panduan%20Penggunaan-emerald)](docs/PANDUAN_PENGGUNAAN.md)
 
 ---
 
@@ -189,6 +189,7 @@ Results from `python scripts/benchmark.py` (100 iterations per scenario, 400 tot
 | **SSE Stream (paced for UI, REPLAY)** | `610.424 ms` | **608.193 ms** | `626.980 ms` | `651.915 ms` |
 
 ### Zero-Drift Verification
+
 - **Total Checks:** `400/400`
 - **Outcome Consistency:** **100.0% (Zero Drift)**
   Every single iteration produced bit-exact identical actions, reason codes, expected value calculations, and win probabilities.
@@ -199,9 +200,9 @@ Results from `python scripts/benchmark.py` (100 iterations per scenario, 400 tot
 
 MerchantGuard uses the **AMD Token Factory gateway** for live LLM inference:
 - **Gateway URL:** `https://developer.amd.com.cn/radeon/api/v1`
-- **Model:** `DeepSeek-V4-Flash` (gateway model ID: `self-dploy/DeepSeek-V4-Flash`)
+- **Model:** `Gemma-4-31B-IT` (gateway model ID: `self-dploy/Gemma-4-31B-IT`) / `DeepSeek-V4-Flash`
 - **Protocol:** OpenAI-compatible chat completions (`/chat/completions`), Bearer key via `OPENAI_API_KEY`.
-- **Timeout:** 35 seconds (`VLLM_TIMEOUT=35.0`). The live call measured at ~8.5 s — well within budget.
+- **Timeout:** 35 seconds (`VLLM_TIMEOUT=35.0`). The live call measured at ~3.1 s – 15.6 s — well within budget.
 - **Quota management:** Rate-limit and RPM cap to be verified per T2.6. Circuit breaker auto-degrades to REPLAY at 2 consecutive failures, recovering after 60 s.
 - **No GPU provisioning required:** Token Factory is a managed gateway. `rocm-smi` evidence is not applicable; AMD infrastructure is evidenced by Token Factory portal usage screenshot and sanitized request logs.
 
@@ -212,7 +213,7 @@ MerchantGuard uses the **AMD Token Factory gateway** for live LLM inference:
 Run the deterministic test suite (policy gate, margin math, audit ledger, degradation ladder, SSE streams). Live-gateway tests are gated behind the `live` marker and excluded by default to avoid consuming quota:
 
 ```bash
-# Default: all 30 tests, no gateway calls
+# Default: all 40 tests, no gateway calls
 pytest -v tests/
 
 # Live gateway tests only (requires OPENAI_API_KEY in .env):
